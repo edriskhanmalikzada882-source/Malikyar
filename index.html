@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14243a">
+<title>ملک یار | مدیریت رهنمای معاملات</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--navy:#14243a;--gold:#d6ad55;--bg:#f3f5f8;--card:#fff;--text:#172235;--muted:#697586;--line:#e5e9ef;--danger:#b42318}
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,"Noto Naskh Arabic",Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:var(--navy);color:#fff}
+button.secondary{background:#e9edf3;color:var(--text)}button.gold{background:var(--gold);color:#241b0a}button.danger{background:var(--danger)}
+input,select,textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--text);margin-top:6px}
+label{font-size:13px;color:var(--muted);display:block;margin-bottom:12px}textarea{min-height:85px;resize:vertical}
+header{background:var(--navy);color:white;padding:15px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:4px solid var(--gold)}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border:2px solid var(--gold);border-radius:12px;display:grid;place-items:center;color:var(--gold);font-weight:bold;font-size:20px}
+.brand h1{font-size:20px;margin:0}.brand small{color:#d8deea}
+main{max-width:1180px;margin:22px auto;padding:0 14px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.tabs button{background:#e4e9f0;color:var(--navy)}.tabs button.active{background:var(--navy);color:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.card{background:var(--card);padding:17px;border-radius:14px;box-shadow:0 3px 14px #18283d0c;border:1px solid var(--line);margin-bottom:14px}
+.stat{font-size:27px;font-weight:bold;color:var(--navy);margin-top:7px}.muted{color:var(--muted);font-size:13px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}.toolbar input{max-width:340px;margin:0}.property{display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:center}.thumb{width:130px;height:105px;object-fit:cover;border-radius:10px;background:#edf0f4}.property h3{margin:0 0 7px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.pill{display:inline-block;padding:4px 9px;border-radius:20px;background:#f5edda;color:#73551b;font-size:12px}
+.hidden{display:none!important}.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0 14px}.photo-grid{display:flex;gap:8px;flex-wrap:wrap}.photo-grid img{width:92px;height:80px;object-fit:cover;border-radius:8px}
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:18px}.login{width:min(420px,100%);text-align:center}.login .logo{margin:0 auto 12px;width:58px;height:58px}
+.notice{background:#fff7e6;border:1px solid #f1d79c;padding:12px;border-radius:10px;font-size:13px;line-height:1.8;margin:12px 0}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
+h2{font-size:19px;margin:0 0 15px}.empty{text-align:center;padding:35px;color:var(--muted)}
+@media(max-width:600px){header{align-items:flex-start}.property{grid-template-columns:90px 1fr}.thumb{width:90px;height:90px}.brand h1{font-size:17px}.toolbar input{max-width:none;flex:1}}
+@media print{header,.tabs,.toolbar,.actions,footer,.no-print{display:none!important}body{background:white}.card{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<div id="loginView" class="login-wrap">
+ <div class="card login">
+  <div class="logo">م</div><h1>رهنمای معاملات ملک یار</h1><p class="muted">سیستم مدیریت آفلاین املاک</p>
+  <div id="firstSetup" class="hidden">
+   <div class="notice">برای نخستین استفاده، رمز مدیر را تعیین کنید. رمز را در جای امن نگهداری نمایید.</div>
+   <label>رمز جدید مدیر<input id="newPass" type="password" autocomplete="new-password"></label>
+   <label>تکرار رمز<input id="confirmPass" type="password" autocomplete="new-password"></label>
+   <button class="gold" style="width:100%" onclick="setupPassword()">ساخت حساب مدیر</button>
+  </div>
+  <div id="loginForm" class="hidden">
+   <label>رمز عبور<input id="loginPass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()"></label>
+   <button style="width:100%" onclick="login()">ورود به سیستم</button>
+  </div>
+  <p id="loginError" style="color:var(--danger)"></p>
+ </div>
+</div>
+<div id="app" class="hidden">
+<header>
+ <div class="brand"><div class="logo">م</div><div><h1 id="officeTitle">رهنمای معاملات ملک یار</h1><small>مدیریت آفلاین املاک</small></div></div>
+ <div class="actions"><button class="gold" onclick="showTab('add')">＋ ثبت خانه</button><button class="secondary" onclick="lockApp()">قفل سیستم</button></div>
+</header>
+<main>
+ <nav class="tabs no-print">
+  <button class="active" data-tab="home" onclick="showTab('home')">داشبورد</button>
+  <button data-tab="list" onclick="showTab('list')">فهرست خانه‌ها</button>
+  <button data-tab="add" onclick="showTab('add')">ثبت خانه</button>
+  <button data-tab="settings" onclick="showTab('settings')">تنظیمات</button>
+ </nav>
+ <section id="tab-home">
+  <div class="grid">
+   <div class="card"><div class="muted">مجموع ملک‌های ثبت‌شده</div><div class="stat" id="totalCount">۰</div></div>
+   <div class="card"><div class="muted">فروشی</div><div class="stat" id="sellCount">۰</div></div>
+   <div class="card"><div class="muted">کرایی</div><div class="stat" id="rentCount">۰</div></div>
+   <div class="card"><div class="muted">بیع وفا و جایزی</div><div class="stat" id="otherCount">۰</div></div>
+  </div>
+  <div class="card"><h2>آخرین ملک‌های ثبت‌شده</h2><div id="recentList"></div></div>
+  <div class="notice">اطلاعات و عکس‌ها در حافظه همین دستگاه ذخیره می‌شوند. برای انتقال به دستگاه دیگر، از تنظیمات نسخه پشتیبان بگیرید.</div>
+ </section>
+ <section id="tab-list" class="hidden">
+  <div class="toolbar"><input id="searchBox" placeholder="جستجو بر اساس نام، آدرس یا شماره تماس..." oninput="renderList()">
+   <select id="filterType" style="max-width:180px;margin:0" onchange="renderList()"><option value="">همه نوع‌ها</option><option value="فروشی">فروشی</option><option value="کرایی">کرایی</option><option value="بیع وفا">بیع وفا</option><option value="جایزی">جایزی</option></select></div>
+  <div id="propertyList"></div>
+ </section>
+ <section id="tab-add" class="hidden">
+  <div class="card"><h2 id="formTitle">ثبت خانه جدید</h2>
+   <form id="propertyForm" onsubmit="saveProperty(event)">
+    <input type="hidden" id="editId">
+    <div class="formgrid">
+     <label>عنوان یا نام ملک<input id="pTitle" required placeholder="مثلاً خانه سه اتاقه"></label>
+     <label>نوع معامله<select id="pType"><option>فروشی</option><option>کرایی</option><option>بیع وفا</option><option>جایزی</option></select></label>
+     <label>قیمت<input id="pPrice" placeholder="مبلغ"></label>
+     <label>واحد پول<select id="pCurrency"><option>افغانی</option><option>دالر</option></select></label>
+     <label>موقعیت / آدرس<input id="pAddress" placeholder="ولایت، ناحیه، گذر..."></label>
+     <label>نام مالک<input id="pOwner"></label>
+     <label>شماره تماس مالک<input id="pPhone" inputmode="tel"></label>
+     <label>تعداد اتاق‌ها<input id="pRooms" type="number" min="0"></label>
+    </div>
+    <label>توضیحات ملک<textarea id="pDetails" placeholder="مساحت، طبقه، امکانات و سایر مشخصات..."></textarea></label>
+    <label>عکس‌های خانه (چند عکس انتخاب کنید)<input id="pPhotos" type="file" accept="image/*" multiple></label>
+    <div id="existingPhotos" class="photo-grid"></div>
+    <div class="actions"><button class="gold" type="submit">ذخیره ملک</button><button type="button" class="secondary" onclick="resetForm()">پاک‌کردن فورم</button></div>
+   </form>
+  </div>
+ </section>
+ <section id="tab-settings" class="hidden">
+  <div class="card"><h2>تنظیمات عمومی</h2>
+   <div class="formgrid">
+    <label>نام دفتر<input id="sOffice" value="رهنمای معاملات ملک یار"></label>
+    <label>شماره تماس دفتر<input id="sPhone"></label>
+    <label>رنگ اصلی سیستم<select id="sColor"><option value="#14243a">سرمه‌ای</option><option value="#174b38">سبز</option><option value="#263b72">آبی</option><option value="#333333">مشکی</option><option value="#6b315f">بنفش</option><option value="#8a3d25">قهوه‌ای</option></select></label>
+   </div>
+   <button class="gold" onclick="saveSettings()">ذخیره تنظیمات</button>
+  </div>
+  <div class="card"><h2>امنیت و رمز عبور</h2>
+   <label>رمز فعلی<input id="oldPass" type="password"></label><label>رمز جدید<input id="changePass" type="password"></label>
+   <button onclick="changePassword()">تغییر رمز مدیر</button>
+  </div>
+  <div class="card"><h2>پشتیبان‌گیری و بازیابی</h2>
+   <p class="muted">نسخه پشتیبان شامل مشخصات و عکس‌های تمام ملک‌ها است. فایل پشتیبان را در جای امن نگهداری کنید.</p>
+   <div class="actions"><button onclick="backupData()">دانلود نسخه پشتیبان</button><label style="margin:0">بازیابی از فایل پشتیبان<input id="restoreFile" type="file" accept="application/json"></label><button class="secondary" onclick="document.getElementById('restoreFile').click()">انتخاب فایل</button></div>
+  </div>
+  <div class="card"><h2>مدیریت اطلاعات</h2><p class="muted">حذف ملک قابل برگشت نیست؛ پیش از حذف، نسخه پشتیبان بگیرید.</p><button class="danger" onclick="deleteAll()">حذف تمام ملک‌ها</button></div>
+ </section>
+</main>
+<footer>ملک یار — سیستم مدیریت رهنمای معاملات</footer>
+</div>
+<script>
+const DB_NAME='MelkYarDB', STORE='properties';
+let db, properties=[], currentPhotos=[];
+const $=id=>document.getElementById(id);
+function openDB(){return new Promise((resolve,reject)=>{let r=indexedDB.open(DB_NAME,1);r.onupgradeneeded=()=>{let d=r.result;if(!d.objectStoreNames.contains(STORE))d.createObjectStore(STORE,{keyPath:'id'});};r.onsuccess=()=>{db=r.result;resolve(db)};r.onerror=()=>reject(r.error)})}
+function tx(mode='readonly'){return db.transaction(STORE,mode).objectStore(STORE)}
+function allProps(){return new Promise((res,rej)=>{let r=tx().getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error)})}
+function put(p){return new Promise((res,rej)=>{let r=tx('readwrite').put(p);r.onsuccess=()=>res();r.onerror=()=>rej(r.error)})}
+function del(id){return new Promise((res,rej)=>{let r=tx('readwrite').delete(id);r.onsuccess=()=>res();r.onerror=()=>rej(r.error)})}
+const b64=s=>btoa(unescape(encodeURIComponent(s))), unb64=s=>decodeURIComponent(escape(atob(s)));
+async function hash(s){let data=new TextEncoder().encode(s),h=await crypto.subtle.digest('SHA-256',data);return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+function getConfig(){try{return JSON.parse(localStorage.getItem('myConfig')||'{}')}catch{return {}}}
+function setConfig(c){localStorage.setItem('myConfig',JSON.stringify(c))}
+async function init(){await openDB();let c=getConfig();$('firstSetup').classList.toggle('hidden',!!c.passHash);$('loginForm').classList.toggle('hidden',!c.passHash);if(c.color)document.documentElement.style.setProperty('--navy',c.color)}
+async function setupPassword(){let a=$('newPass').value,b=$('confirmPass').value;if(a.length<6)return err('رمز باید حداقل ۶ حرف یا عدد باشد.');if(a!==b)return err('رمزها یکسان نیستند.');let c=getConfig();c.passHash=await hash(a);setConfig(c);$('firstSetup').classList.add('hidden');$('loginForm').classList.remove('hidden');$('loginError').textContent='رمز ساخته شد؛ اکنون وارد شوید.'}
+async function login(){let c=getConfig();if(await hash($('loginPass').value)!==c.passHash)return err('رمز عبور نادرست است.');$('loginView').classList.add('hidden');$('app').classList.remove('hidden');loadApp()}
+function err(t){$('loginError').textContent=t}
+function lockApp(){$('app').classList.add('hidden');$('loginView').classList.remove('hidden');$('loginPass').value='';$('loginForm').classList.remove('hidden')}
+async function loadApp(){properties=await allProps();applySettings();renderHome()}
+function applySettings(){let c=getConfig();document.documentElement.style.setProperty('--navy',c.color||'#14243a');$('officeTitle').textContent=c.office||'رهنمای معاملات ملک یار';$('sOffice').value=c.office||'رهنمای معاملات ملک یار';$('sPhone').value=c.phone||'';$('sColor').value=c.color||'#14243a'}
+function showTab(t){document.querySelectorAll('main section').forEach(x=>x.classList.add('hidden'));$('tab-'+t).classList.remove('hidden');document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active',x.dataset.tab===t));if(t==='list')renderList();if(t==='home')renderHome()}
+function fmt(n){return Number(n||0).toLocaleString('fa-IR')}
+function cardHTML(p){let src=p.photos&&p.photos.length?URL.createObjectURL(p.photos[0]):'';return `<div class="card property"><img class="thumb" src="${src}" onerror="this.style.visibility='hidden'"><div><h3>${esc(p.title)}</h3><span class="pill">${esc(p.type)}</span><p class="muted">${esc(p.address||'آدرس ثبت نشده')} · ${esc(p.phone||'')}</p><b>${fmt(p.price)} ${esc(p.currency||'افغانی')}</b><div class="actions"><button onclick="viewProp('${p.id}')">جزئیات / چاپ</button><button class="secondary" onclick="editProp('${p.id}')">ویرایش</button><button class="danger" onclick="deleteProp('${p.id}')">حذف</button></div></div></div>`}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderHome(){$('totalCount').textContent=fmt(properties.length);$('sellCount').textContent=fmt(properties.filter(p=>p.type==='فروشی').length);$('rentCount').textContent=fmt(properties.filter(p=>p.type==='کرایی').length);$('otherCount').textContent=fmt(properties.filter(p=>['بیع وفا','جایزی'].includes(p.type)).length);$('recentList').innerHTML=properties.slice().sort((a,b)=>b.created-a.created).slice(0,4).map(cardHTML).join('')||'<div class="empty">هنوز خانه‌ای ثبت نشده است.</div>'}
+function renderList(){let q=$('searchBox').value.trim().toLowerCase(),f=$('filterType').value;let arr=properties.filter(p=>(!f||p.type===f)&&[p.title,p.address,p.phone,p.owner].join(' ').toLowerCase().includes(q));$('propertyList').innerHTML=arr.map(cardHTML).join('')||'<div class="card empty">ملکی مطابق جستجوی شما پیدا نشد.</div>'}
+function resetForm(){$('propertyForm').reset();$('editId').value='';$('formTitle').textContent='ثبت خانه جدید';currentPhotos=[];$('existingPhotos').innerHTML=''}
+async function saveProperty(e){e.preventDefault();let id=$('editId').value||crypto.randomUUID();let old=properties.find(p=>p.id===id);let files=[...$('pPhotos').files];let photos=old?.photos?[...old.photos]:[];for(let f of files){if(!f.type.startsWith('image/'))continue;photos.push(f)}let p={id,title:$('pTitle').value.trim(),type:$('pType').value,price:$('pPrice').value,currency:$('pCurrency').value,address:$('pAddress').value,owner:$('pOwner').value,phone:$('pPhone').value,rooms:$('pRooms').value,details:$('pDetails').value,photos,created:old?.created||Date.now()};await put(p);properties=await allProps();resetForm();renderHome();showTab('list')}
+function editProp(id){let p=properties.find(x=>x.id===id);if(!p)return;showTab('add');$('formTitle').textContent='ویرایش مشخصات ملک';$('editId').value=id;for(let [k,v] of Object.entries({pTitle:p.title,pType:p.type,pPrice:p.price,pCurrency:p.currency,pAddress:p.address,pOwner:p.owner,pPhone:p.phone,pRooms:p.rooms,pDetails:p.details}))$(k).value=v||'';$('existingPhotos').innerHTML=(p.photos||[]).map(x=>`<img src="${URL.createObjectURL(x)}">`).join('')}
+async function deleteProp(id){if(!confirm('آیا مطمئن هستید که این ملک حذف شود؟ این کار برگشت‌پذیر نیست.'))return;await del(id);properties=await allProps();renderList();renderHome()}
+function viewProp(id){let p=properties.find(x=>x.id===id);if(!p)return;let w=window.open('','_blank');if(!w){alert('برای نمایش جزئیات، اجازه بازشدن پنجره را بدهید.');return}let imgs=(p.photos||[]).map(x=>`<img style="width:180px;height:140px;object-fit:cover;margin:5px" src="${URL.createObjectURL(x)}">`).join('');w.document.write(`<html lang="fa" dir="rtl"><meta charset="utf-8"><title>${esc(p.title)}</title><body style="font-family:Tahoma;padding:25px"><h2>رهنمای معاملات ملک یار</h2><h3>${esc(p.title)}</h3><p>نوع معامله: ${esc(p.type)}</p><p>قیمت: ${fmt(p.price)} ${esc(p.currency)}</p><p>آدرس: ${esc(p.address)}</p><p>مالک: ${esc(p.owner)} | تماس: ${esc(p.phone)}</p><p>اتاق‌ها: ${esc(p.rooms)}</p><p>${esc(p.details)}</p><div>${imgs}</div><button onclick="print()">چاپ این صفحه</button></body></html>`);w.document.close()}
+async function saveSettings(){let c=getConfig();c.office=$('sOffice').value.trim()||'رهنمای معاملات ملک یار';c.phone=$('sPhone').value;c.color=$('sColor').value;setConfig(c);applySettings();alert('تنظیمات ذخیره شد.')}
+async function changePassword(){let c=getConfig();if(await hash($('oldPass').value)!==c.passHash)return alert('رمز فعلی درست نیست.');let n=$('changePass').value;if(n.length<6)return alert('رمز جدید باید حداقل ۶ حرف یا عدد باشد.');c.passHash=await hash(n);setConfig(c);$('oldPass').value='';$('changePass').value='';alert('رمز تغییر کرد.')}
+async function backupData(){let rows=await allProps();let payload={app:'MelkYar',version:1,created:new Date().toISOString(),properties:[]};for(let p of rows){let q={...p,photos:[]};for(let blob of (p.photos||[])){q.photos.push({type:blob.type,data:await blobToData(blob)})}payload.properties.push(q)}let blob=new Blob([JSON.stringify(payload)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='melk-yar-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)}
+function blobToData(b){return new Promise(r=>{let fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(b)})}
+$('restoreFile').addEventListener('change',async e=>{let f=e.target.files[0];if(!f)return;try{let d=JSON.parse(await f.text());if(d.app!=='MelkYar'||!Array.isArray(d.properties))throw Error();if(!confirm('بازیابی، فهرست فعلی را با اطلاعات فایل جایگزین می‌کند. ادامه می‌دهید؟'))return;for(let p of await allProps())await del(p.id);for(let p of d.properties){p.photos=(p.photos||[]).map(x=>{let [meta,data]=x.data.split(',');let raw=atob(data),arr=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);return new Blob([arr],{type:x.type||'image/jpeg'})});await put(p)}properties=await allProps();renderHome();alert('اطلاعات بازیابی شد.')}catch{alert('فایل پشتیبان معتبر نیست.')}e.target.value=''});
+async function deleteAll(){if(!confirm('تمام خانه‌ها و عکس‌هایشان حذف شود؟'))return;if(!confirm('این عمل قابل برگشت نیست. مطمئن هستید؟'))return;for(let p of properties)await del(p.id);properties=[];renderHome();alert('تمام ملک‌ها حذف شدند.')}
+init().catch(e=>alert('خطا در آماده‌سازی حافظه سیستم: '+e));
+if('serviceWorker' in navigator && location.protocol!=='file:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script>
+</body></html>

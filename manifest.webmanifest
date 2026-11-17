@@ -1,0 +1,17 @@
+{
+  "name": "رهنمای معاملات ملک یار",
+  "short_name": "ملک یار",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f5f8",
+  "theme_color": "#14243a",
+  "description": "سیستم آفلاین مدیریت رهنمای معاملات ملک یار",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
